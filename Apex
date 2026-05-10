@@ -1,0 +1,211 @@
+Based on Assignment 4 of Cloud Computing 
+ 
+1. Display a Welcome Message 
+Problem Statement 
+Write an Apex program to display the message "Welcome to Apex Programming". 
+Solution 
+public class WelcomeMessage { 
+    public static void showMessage() { 
+        System.debug('Welcome to Apex Programming'); 
+    } 
+} 
+ 
+Output 
+Welcome to Apex Programming 
+ 
+ 
+2. Add Two Numbers 
+Problem Statement 
+Write an Apex program to add two numbers and display the result. 
+Solution 
+public class AdditionProgram { 
+    public static void addNumbers() { 
+        Integer a = 10; 
+        Integer b = 20; 
+        Integer sum = a + b; 
+ 
+        System.debug('Sum = ' + sum); 
+    } 
+} 
+ 
+Output 
+Sum = 30 
+ 
+ 
+3. Find Whether a Number is Even or Odd 
+Problem Statement 
+Write an Apex program to check whether a number is even or odd. 
+Solution 
+public class EvenOddProgram { 
+    public static void checkNumber() { 
+        Integer num = 15; 
+ 
+        if(num % 2 == 0) { 
+            System.debug(num + ' is Even'); 
+        } else { 
+            System.debug(num + ' is Odd'); 
+        } 
+    } 
+} 
+ 
+Output 
+15 is Odd 
+ 
+ 
+4. Find the Largest of Two Numbers 
+Problem Statement 
+Write an Apex program to find the larger number between two integers. 
+Solution 
+public class LargestNumber { 
+    public static void findLargest() { 
+        Integer a = 45; 
+        Integer b = 28; 
+ 
+        if(a > b) { 
+            System.debug(a + ' is larger'); 
+        } else { 
+            System.debug(b + ' is larger'); 
+        } 
+    } 
+} 
+ 
+Output 
+45 is larger 
+ 
+ 
+5. Print Numbers from 1 to 10 
+Problem Statement 
+Write an Apex program to print numbers from 1 to 10 using a loop. 
+Solution 
+public class PrintNumbers { 
+    public static void showNumbers() { 
+        for(Integer i = 1; i <= 10; i++) { 
+            System.debug(i); 
+        } 
+    } 
+} 
+ 
+Output 
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+ 
+ 
+6. Find the Factorial of a Number 
+Problem Statement 
+Write an Apex program to find the factorial of a number. 
+Solution 
+public class FactorialProgram { 
+    public static void calculateFactorial() { 
+        Integer num = 5; 
+        Integer fact = 1; 
+ 
+        for(Integer i = 1; i <= num; i++) { 
+            fact = fact * i; 
+        } 
+ 
+        System.debug('Factorial = ' + fact); 
+    } 
+} 
+ 
+Output 
+Factorial = 120 
+ 
+ 
+7. Reverse a String 
+Problem Statement 
+Write an Apex program to reverse a given string. 
+Solution 
+public class ReverseString { 
+    public static void reverseText() { 
+        String str = 'Apex'; 
+        String rev = ''; 
+ 
+        for(Integer i = str.length() - 1; i >= 0; i--) { 
+            rev += str.substring(i, i + 1); 
+        } 
+ 
+        System.debug('Reversed String = ' + rev); 
+    } 
+} 
+ 
+Output 
+Reversed String = xepA 
+ 
+ 
+8. Count the Number of Characters in a String 
+Problem Statement 
+Write an Apex program to count the number of characters in a string. 
+Solution 
+public class CharacterCount { 
+    public static void countCharacters() { 
+        String text = 'Salesforce'; 
+        Integer count = text.length(); 
+ 
+        System.debug('Number of characters = ' + count); 
+    } 
+} 
+ 
+Output 
+Number of characters = 10 
+ 
+ 
+9. Store and Display Student Names Using List 
+Problem Statement 
+Write an Apex program to store student names in a list and display them. 
+Solution 
+public class StudentListProgram { 
+    public static void displayStudents() { 
+        List<String> students = new List<String>(); 
+ 
+        students.add('Rahul'); 
+        students.add('Priya'); 
+        students.add('Amit'); 
+ 
+        for(String name : students) { 
+            System.debug(name); 
+        } 
+    } 
+} 
+ 
+Output 
+Rahul 
+Priya 
+Amit 
+ 
+ 
+10. Find the Sum of Elements in a List 
+Problem Statement 
+Write an Apex program to find the sum of all numbers stored in a list. 
+Solution 
+public class SumOfList { 
+    public static void calculateSum() { 
+        List<Integer> numbers = new List<Integer>{10, 20, 30, 40}; 
+        Integer sum = 0; 
+ 
+        for(Integer num : numbers) { 
+            sum += num; 
+        } 
+ 
+        System.debug('Total Sum = ' + sum); 
+    } 
+} 
+ 
+Output 
+Total Sum = 100 
+How to Run These Programs in Salesforce Developer Console 
+1. Open Salesforce Developer Console. 
+2. Click File → New → Apex Class. 
+3. Enter the class name. 
+4. Paste the code. 
+5. Save the class. 
+6. Open Debug → Open Execute Anonymous Window. 
+7. Call the method, for example: WelcomeMessage.showMessage(); 
+8. Click Execute and check the debug log for output.
