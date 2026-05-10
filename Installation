@@ -1,0 +1,11 @@
+Prerequisites 
+Install KVM and related tools: 
+sudo apt update 
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients virtinst 
+bridge-utils -y 
+sudo systemctl enable --now libvirtd 
+Verify KVM installation: 
+virsh list --all 
+Create a folder for all scripts: 
+mkdir ~/kvm-cloud-practicals 
+cd ~/kvm-cloud-practicals
