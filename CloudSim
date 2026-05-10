@@ -1,0 +1,226 @@
+Based on Assignment 3 of Cloud Computing 
+ 
+Before running: 
+● Download and add the CloudSim library to your Java project. 
+● Import cloudsim-3.0.3.jar. 
+● Create each program in a separate Java file. 
+ 
+1. Priority-Based Cloudlet Scheduling 
+Problem Statement 
+Create a CloudSim program where cloudlets are scheduled according to priority. A 
+lower priority value means the cloudlet executes first. 
+import org.cloudbus.cloudsim.*; 
+import org.cloudbus.cloudsim.core.CloudSim; 
+ 
+import java.util.*; 
+ 
+public class PriorityScheduling { 
+ 
+    public static void main(String[] args) { 
+        try { 
+            int numUser = 1; 
+            Calendar calendar = Calendar.getInstance(); 
+            boolean traceFlag = false; 
+ 
+            CloudSim.init(numUser, calendar, traceFlag); 
+ 
+            Datacenter datacenter = createDatacenter("Datacenter_1"); 
+            DatacenterBroker broker = new DatacenterBroker("Broker"); 
+            int brokerId = broker.getId(); 
+ 
+            Vm vm = new Vm(0, brokerId, 1000, 1, 512, 1000, 10000, "Xen", new 
+CloudletSchedulerTimeShared()); 
+            broker.submitVmList(Arrays.asList(vm)); 
+ 
+            List<Cloudlet> cloudletList = new ArrayList<>(); 
+ 
+            cloudletList.add(createCloudlet(0, brokerId, 4000)); 
+            cloudletList.add(createCloudlet(1, brokerId, 1000)); 
+            cloudletList.add(createCloudlet(2, brokerId, 2000)); 
+ 
+            // Custom Priority Scheduling 
+            Collections.sort(cloudletList, 
+Comparator.comparingLong(Cloudlet::getCloudletLength)); 
+ 
+            broker.submitCloudletList(cloudletList); 
+ 
+            CloudSim.startSimulation(); 
+            CloudSim.stopSimulation(); 
+ 
+            List<Cloudlet> result = broker.getCloudletReceivedList(); 
+ 
+            System.out.println("Priority Scheduling Output:"); 
+            for (Cloudlet c : result) { 
+                System.out.println("Cloudlet " + c.getCloudletId() + " finished"); 
+            } 
+ 
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        } 
+    } 
+ 
+    private static Cloudlet createCloudlet(int id, int brokerId, long length) { 
+        UtilizationModel utilizationModel = new UtilizationModelFull(); 
+ 
+        Cloudlet cloudlet = new Cloudlet(id, length, 1, 300, 300, 
+                utilizationModel, utilizationModel, utilizationModel); 
+        cloudlet.setUserId(brokerId); 
+        return cloudlet; 
+    } 
+ 
+    private static Datacenter createDatacenter(String name) throws Exception { 
+        List<Host> hostList = new ArrayList<>(); 
+ 
+        List<Pe> peList = new ArrayList<>(); 
+        peList.add(new Pe(0, new PeProvisionerSimple(1000))); 
+ 
+        hostList.add(new Host(0, 
+                new RamProvisionerSimple(2048), 
+                new BwProvisionerSimple(10000), 
+                1000000, 
+                peList, 
+                new VmSchedulerTimeShared(peList))); 
+ 
+        DatacenterCharacteristics characteristics = new DatacenterCharacteristics( 
+                "x86", "Linux", "Xen", hostList, 10.0, 3.0, 0.05, 0.001, 0.0); 
+ 
+        return new Datacenter(name, characteristics, 
+                new VmAllocationPolicySimple(hostList), new LinkedList<>(), 0); 
+    } 
+} 
+ 
+ 
+2. Shortest Job First (SJF) Scheduling 
+Problem Statement 
+Create a CloudSim program where the smallest cloudlet is executed first. 
+Collections.sort(cloudletList, new Comparator<Cloudlet>() { 
+    @Override 
+    public int compare(Cloudlet c1, Cloudlet c2) { 
+        return Long.compare(c1.getCloudletLength(), c2.getCloudletLength()); 
+    } 
+}); 
+ 
+Full scheduling section: 
+List<Cloudlet> cloudletList = new ArrayList<>(); 
+cloudletList.add(createCloudlet(0, brokerId, 6000)); 
+cloudletList.add(createCloudlet(1, brokerId, 2000)); 
+cloudletList.add(createCloudlet(2, brokerId, 4000)); 
+ 
+Collections.sort(cloudletList, (c1, c2) -> 
+        Long.compare(c1.getCloudletLength(), c2.getCloudletLength())); 
+ 
+broker.submitCloudletList(cloudletList); 
+ 
+Expected Output 
+Execution Order: Cloudlet 1 -> Cloudlet 2 -> Cloudlet 0 
+ 
+ 
+3. Longest Job First (LJF) Scheduling 
+Problem Statement 
+Create a CloudSim simulation where the cloudlet with maximum length is 
+executed first. 
+import java.util.*; 
+ 
+public class LongestJobFirst { 
+    public static void main(String[] args) { 
+ 
+        List<Integer> jobs = Arrays.asList(1000, 5000, 3000, 7000); 
+ 
+        jobs.sort(Collections.reverseOrder()); 
+ 
+        System.out.println("LJF Scheduling Order:"); 
+ 
+        for (int i = 0; i < jobs.size(); i++) { 
+            System.out.println("Job Length: " + jobs.get(i)); 
+        } 
+    } 
+} 
+ 
+Expected Output 
+LJF Scheduling Order: 
+Job Length: 7000 
+Job Length: 5000 
+Job Length: 3000 
+Job Length: 1000 
+ 
+ 
+4. Round Robin Scheduling 
+Problem Statement 
+Simulate Round Robin scheduling in CloudSim where each cloudlet gets equal 
+CPU time. 
+import java.util.*; 
+ 
+public class RoundRobinScheduling { 
+ 
+    public static void main(String[] args) { 
+ 
+        int[] burstTime = {10, 5, 8}; 
+        int quantum = 2; 
+ 
+        int[] remaining = burstTime.clone(); 
+        int time = 0; 
+ 
+        System.out.println("Round Robin Execution:"); 
+ 
+        boolean done; 
+ 
+        do { 
+            done = true; 
+ 
+            for (int i = 0; i < remaining.length; i++) { 
+                if (remaining[i] > 0) { 
+                    done = false; 
+ 
+                    if (remaining[i] > quantum) { 
+                        time += quantum; 
+                        remaining[i] -= quantum; 
+                        System.out.println("Task " + i + " executed till " + time); 
+                    } else { 
+                        time += remaining[i]; 
+                        System.out.println("Task " + i + " completed at " + time); 
+                        remaining[i] = 0; 
+                    } 
+                } 
+            } 
+        } while (!done); 
+    } 
+} 
+ 
+Expected Output 
+Task 0 executed till 2 
+Task 1 executed till 4 
+Task 2 executed till 6 
+... 
+ 
+ 
+5. Min-Min Scheduling Algorithm 
+Problem Statement 
+Implement the Min-Min scheduling algorithm where the task with minimum 
+execution time is assigned first. 
+import java.util.*; 
+ 
+public class MinMinScheduling { 
+ 
+    public static void main(String[] args) { 
+ 
+        int[] tasks = {12, 5, 20, 7}; 
+ 
+        List<Integer> taskList = new ArrayList<>(); 
+ 
+        for (int t : tasks) { 
+            taskList.add(t); 
+        } 
+ 
+        while (!taskList.isEmpty()) { 
+            int min = Collections.min(taskList); 
+            System.out.println("Executing Task with time: " + min); 
+            taskList.remove(Integer.valueOf(min)); 
+        } 
+    } 
+} 
+ 
+Expected Output 
+Executing Task with time: 5 
+Executing Task with time: 7 
+Executing Task with time: 12 
+Executing Task with time: 20
