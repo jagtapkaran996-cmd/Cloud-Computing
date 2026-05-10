@@ -1,0 +1,145 @@
+1. Create Two Ubuntu VMs (Private Cloud) 
+Create the script: 
+nano create_private_cloud.sh 
+Paste: 
+#!/bin/bash 
+virt-install --name cloud-node1 \ --ram 2048 --vcpus 2 \ --disk path=/var/lib/libvirt/images/cloud-node1.qcow2,size=15 \ --os-variant ubuntu22.04 \ --cdrom /home/$USER/Downloads/ubuntu-22.04.iso \ --network network=default \ --graphics vnc --noautoconsole 
+virt-install --name cloud-node2 \ --ram 2048 --vcpus 2 \ --disk path=/var/lib/libvirt/images/cloud-node2.qcow2,size=15 \ --os-variant ubuntu22.04 \ --cdrom /home/$USER/Downloads/ubuntu-22.04.iso \ --network network=default \ --graphics vnc --noautoconsole 
+Save and run: 
+chmod +x create_private_cloud.sh 
+./create_private_cloud.sh 
+Check VMs: 
+virsh list --all 
+
+
+2. Install Apache Web Server Inside a VM 
+Start the VM: 
+virsh start cloud-node1 
+Find the IP address: 
+virsh domifaddr cloud-node1 
+SSH into the VM: 
+ssh username@VM_IP 
+Inside the VM, run: 
+sudo apt update 
+sudo apt install apache2 -y 
+echo "<h1>Cloud Server Running</h1>" | sudo tee /var/www/html/index.html 
+sudo systemctl start apache2 
+Open a browser and visit: 
+http://VM_IP 
+
+
+3. Create a Snapshot (Backup) 
+Start the VM if not already running: 
+virsh start cloud-node1 
+Create snapshot: 
+virsh snapshot-create-as cloud-node1 backup1 "Snapshot before changes" 
+View snapshots: 
+virsh snapshot-list cloud-node1 
+Restore snapshot: 
+virsh snapshot-revert cloud-node1 backup1 
+
+
+4. Clone a VM to Simulate Scaling 
+Shutdown the original VM: 
+virsh shutdown cloud-node1 
+Clone the VM: 
+virt-clone \ --original cloud-node1 \ --name cloud-node1-copy \ --file /var/lib/libvirt/images/cloud-node1-copy.qcow2 
+Start the copied VM: 
+virsh start cloud-node1-copy 
+Verify: 
+virsh list --all 
+
+
+5. Configure Load Balancing with Nginx 
+Create a third VM named loadbalancer-vm. 
+Start all VMs: 
+virsh start cloud-node1 
+virsh start cloud-node2 
+virsh start loadbalancer-vm 
+Find the IP addresses: 
+virsh domifaddr cloud-node1 
+virsh domifaddr cloud-node2 
+virsh domifaddr loadbalancer-vm 
+SSH into loadbalancer-vm: 
+ssh username@LOADBALANCER_IP 
+Install Nginx: 
+sudo apt update 
+sudo apt install nginx -y 
+Edit Nginx configuration: 
+sudo nano /etc/nginx/sites-available/default 
+Replace with: 
+upstream backend { 
+server CLOUD_NODE1_IP; 
+server CLOUD_NODE2_IP; 
+} 
+server { 
+listen 80; 
+location / { 
+proxy_pass http://backend; 
+} 
+} 
+Restart Nginx: 
+sudo systemctl restart nginx 
+Open browser: 
+http://LOADBALANCER_IP 
+
+
+6. Transfer a File Between Two VMs 
+Create a sample file on the host: 
+echo "Cloud Computing Practical" > sample.txt 
+Transfer file: 
+scp sample.txt username@CLOUD_NODE2_IP:/home/username/ 
+Verify inside VM: 
+ssh username@CLOUD_NODE2_IP 
+ls 
+
+
+7. Monitor Resource Usage of VMs 
+Run: 
+virsh list --name | while read vm 
+do 
+echo "VM Name: $vm" 
+virsh dominfo $vm 
+done 
+This displays: 
+● CPU count 
+● RAM allocated 
+● VM state 
+
+
+8. Automatically Start VMs on Host Boot 
+Enable auto-start: 
+virsh autostart cloud-node1 
+virsh autostart cloud-node2 
+Verify: 
+virsh dominfo cloud-node1 | grep Autostart 
+Expected output: 
+Autostart: enable 
+
+
+9. Create Shared Storage Between Host and VM 
+Create a shared folder: 
+mkdir ~/shared-cloud 
+Add a test file: 
+echo "Cloud Storage File" > ~/shared-cloud/info.txt 
+Attach to VM: 
+virsh attach-disk cloud-node1 ~/shared-cloud vdb --targetbus virtio 
+Inside VM, check: 
+lsblk 
+
+
+10. Shut Down All VMs Together 
+Create a script: 
+nano shutdown_all.sh 
+Paste: 
+#!/bin/bash 
+for vm in cloud-node1 cloud-node2 cloud-node1-copy loadbalancer-vm 
+do 
+virsh shutdown $vm 
+done 
+Run: 
+chmod +x shutdown_all.sh 
+./shutdown_all.sh 
+Verify: 
+virsh list --all 
+The VMs should show shut off.
