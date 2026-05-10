@@ -1,0 +1,219 @@
+1. Student Attendance Management System 
+Problem Statement: 
+ Develop a web application on Google App Engine to store and display student 
+attendance. 
+app.yaml 
+runtime: python39 
+entrypoint: gunicorn -b :$PORT main:app 
+main.py 
+from flask import Flask, request 
+ 
+app = Flask(__name__) 
+ 
+attendance = [] 
+ 
+@app.route('/') 
+def home(): 
+   output = "<h2>Student Attendance</h2>" 
+   output += """ 
+   <form method='post' action='/add'> 
+   Name: <input type='text' name='name'><br> 
+   Roll No: <input type='text' name='roll'><br> 
+   Status: <input type='text' name='status'><br> 
+   <input type='submit' value='Add'> 
+   </form><hr> 
+   """ 
+   for a in attendance: 
+       output += f"{a['name']} - {a['roll']} - {a['status']}<br>" 
+   return output 
+ 
+@app.route('/add', methods=['POST']) 
+def add(): 
+   attendance.append({ 
+       'name': request.form['name'], 
+       'roll': request.form['roll'], 
+       'status': request.form['status'] 
+   }) 
+   return home() 
+ 
+if __name__ == '__main__': 
+   app.run() 
+Run: 
+dev_appserver.py app.yaml 
+
+
+2. Library Management System 
+Problem Statement: 
+ Create a cloud-based library system to add and display book records. 
+app.yaml 
+runtime: python39 
+entrypoint: gunicorn -b :$PORT main:app 
+main.py 
+from flask import Flask, request 
+ 
+app = Flask(__name__) 
+ 
+books = [] 
+ 
+@app.route('/') 
+def index(): 
+   html = """ 
+   <h2>Library Management</h2> 
+   <form method='post' action='/add'> 
+   Book Name: <input type='text' name='book'><br> 
+   Author: <input type='text' name='author'><br> 
+   <input type='submit' value='Add Book'> 
+   </form><hr> 
+   """ 
+   for b in books: 
+       html += f"{b['book']} by {b['author']}<br>" 
+   return html 
+ 
+@app.route('/add', methods=['POST']) 
+def add(): 
+   books.append({ 
+       'book': request.form['book'], 
+       'author': request.form['author'] 
+   }) 
+   return index() 
+ 
+if __name__ == '__main__': 
+   app.run() 
+Run: 
+dev_appserver.py app.yaml 
+
+
+3. Employee Record Management System 
+Problem Statement: 
+ Develop an application to store employee details such as ID, name, and 
+department. 
+app.yaml 
+runtime: python39 
+entrypoint: gunicorn -b :$PORT main:app 
+main.py 
+from flask import Flask, request 
+ 
+app = Flask(__name__) 
+ 
+employees = [] 
+ 
+@app.route('/') 
+def home(): 
+   data = """ 
+   <h2>Employee Record Management</h2> 
+   <form method='post' action='/add'> 
+   Employee ID: <input type='text' name='id'><br> 
+   Name: <input type='text' name='name'><br> 
+   Department: <input type='text' name='dept'><br> 
+   <input type='submit' value='Save'> 
+   </form><hr> 
+   """ 
+   for e in employees: 
+       data += f"{e['id']} - {e['name']} - {e['dept']}<br>" 
+   return data 
+ 
+@app.route('/add', methods=['POST']) 
+def add(): 
+   employees.append({ 
+       'id': request.form['id'], 
+       'name': request.form['name'], 
+       'dept': request.form['dept'] 
+   }) 
+   return home() 
+ 
+if __name__ == '__main__': 
+   app.run() 
+Run: 
+dev_appserver.py app.yaml 
+
+
+4. Student Result Processing System 
+Problem Statement: 
+ Create a web application that accepts marks of three subjects and calculates 
+percentage and grade. 
+app.yaml 
+runtime: python39 
+entrypoint: gunicorn -b :$PORT main:app 
+main.py 
+from flask import Flask, request 
+ 
+app = Flask(__name__) 
+ 
+@app.route('/') 
+def form(): 
+   return """ 
+   <h2>Student Result Processing</h2> 
+   <form method='post' action='/result'> 
+   Subject 1: <input type='number' name='s1'><br> 
+   Subject 2: <input type='number' name='s2'><br> 
+   Subject 3: <input type='number' name='s3'><br> 
+   <input type='submit' value='Calculate'> 
+   </form> 
+   """ 
+ 
+@app.route('/result', methods=['POST']) 
+def result(): 
+   s1 = int(request.form['s1']) 
+   s2 = int(request.form['s2']) 
+   s3 = int(request.form['s3']) 
+ 
+   percent = (s1 + s2 + s3) / 3 
+ 
+   if percent >= 75: 
+       grade = 'A' 
+   elif percent >= 60: 
+       grade = 'B' 
+   elif percent >= 40: 
+       grade = 'C' 
+   else: 
+       grade = 'Fail' 
+ 
+   return f"Percentage = {percent}%<br>Grade = {grade}" 
+ 
+if __name__ == '__main__': 
+   app.run() 
+
+
+5. Road Project Monitoring System 
+Problem Statement: 
+ Develop a road project monitoring application to store project name, contractor 
+name, and project status. This is especially relevant for infrastructure and 
+government contract monitoring. 
+app.yaml 
+runtime: python39 
+entrypoint: gunicorn -b :$PORT main:app 
+main.py 
+from flask import Flask, request 
+ 
+app = Flask(__name__) 
+ 
+projects = [] 
+ 
+@app.route('/') 
+def home(): 
+   html = """ 
+   <h2>Road Project Monitoring System</h2> 
+   <form method='post' action='/add'> 
+   Project Name: <input type='text' name='project'><br> 
+   Contractor Name: <input type='text' name='contractor'><br> 
+   Status: <input type='text' name='status'><br> 
+   <input type='submit' value='Add Project'> 
+   </form><hr> 
+   """ 
+   for p in projects: 
+       html += f"{p['project']} - {p['contractor']} - {p['status']}<br>" 
+   return html 
+ 
+@app.route('/add', methods=['POST']) 
+def add(): 
+   projects.append({ 
+       'project': request.form['project'], 
+       'contractor': request.form['contractor'], 
+       'status': request.form['status'] 
+   }) 
+   return home() 
+ 
+if __name__ == '__main__': 
+   app.run() 
+Run: 
+dev_appserver.py app.yaml
